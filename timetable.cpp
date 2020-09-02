@@ -21,22 +21,23 @@ int randomIndex(int no_of_subjects)
 
 int getSlotIndex(int no_of_subjects, int class_per_day, int labs_per_subject, int* temp_week_sub, int* temp_week_labs, bool is_lab)
 {
-    int index = randomIndex(no_of_subjects + 3);
+    int index = randomIndex(no_of_subjects + class_per_day);
 
     if (index >= no_of_subjects)
     {
         return -1;
     }
+
     if (is_lab)
     {
-        if (temp_week_labs[index] < 3)
+        if (temp_week_labs[index] < labs_per_subject)
         {
             temp_week_labs[index]++;
             return index;
         }
     }
 
-    if (temp_week_sub[index] < 3)
+    if (temp_week_sub[index] < class_per_day)
     {
         temp_week_sub[index]++;
         return index;
@@ -113,6 +114,13 @@ int main()
 
         for (int hour = 8; hour < 16; hour += class_hour)
         {
+            // Friday Prayer
+            if(j == 4 && (hour >= 13 && hour <= 14))
+            {
+                timetable << "Break" << delimiter;
+                continue;
+            }
+
             int slot = getSlotIndex(no_of_subjects, class_per_day, labs_per_subject, temp_week_sub, temp_week_labs, false);
 
             if (slot == -1)
