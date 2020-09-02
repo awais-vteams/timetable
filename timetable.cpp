@@ -6,7 +6,6 @@
 
 using namespace std;
 
-
 struct Subjects {
 	char name[50];
 	char teacher_name[50];
@@ -20,9 +19,36 @@ int randomIndex(int no_of_subjects) {
 	return rand_index;
 }
 
-int getSlotIndex(int no_of_subjects, int temp_week_sub[], int temp_week_labs[]) {
-	int index = randomIndex(no_of_subjects);
-	
+int getSlotIndex(int no_of_subjects, int class_per_day, int labs_per_subject, int *temp_week_sub, int *temp_week_labs, bool is_lab) {
+	int index = randomIndex(no_of_subjects + 3);
+
+    if(index >= no_of_subjects) {
+        return -1;
+    }
+    if(is_lab) {
+        if(temp_week_labs[index] < 3) {
+            temp_week_labs[index] ++;
+            return index;
+        }
+    }
+
+	if(temp_week_sub[index] < 3) {
+	    temp_week_sub[index] ++;
+	    return index;
+	}
+
+	return -1;
+}
+
+void print() {
+    string line;
+
+    fstream  timetable;
+    timetable.open("timetable.csv", ios::out | ios::in );
+	while ( getline (timetable,line) )
+    {
+      cout << line << "\n";
+    }
 }
 
 int main()
@@ -31,6 +57,7 @@ int main()
 	int class_hour = 1;
 	int class_per_day = 3;
 	int labs_per_subject = 3;
+	string delimiter = ",";
 	
 	cout<<"---------------------------\n";
 	cout<<"-------- Timetable --------\n";
@@ -52,13 +79,13 @@ int main()
 		cout<<"\n";
 	}
 	
-	
-	ofstream timetable("timetable.csv");
-	
+	fstream  timetable;
+    timetable.open("timetable.csv", ios::out | ios::in );
+
 	// Write the header
-	timetable << ",";
+	timetable << delimiter;
 	for(int hour = 8; hour < 16; hour += class_hour) {
-		timetable<<"'"<<hour<<" - "<<hour+1<<"',";
+		timetable<<"'"<<hour<<" - "<<hour+1<<"'"<<delimiter;
 	}
 	timetable << "\n";
 	
@@ -73,17 +100,30 @@ int main()
 	srand ( time(NULL) );
 		
 	for(int j = 0; j < 5; j++) {
-		timetable<<days[j]<<",";
+		timetable<<days[j]<<delimiter;
 		
 		for(int hour = 8; hour < 16; hour += class_hour) {
-			
-			
+            int slot = getSlotIndex(no_of_subjects, class_per_day, labs_per_subject, temp_week_sub, temp_week_labs, false);
+
+            if(slot == -1) {
+                slot = getSlotIndex(no_of_subjects, class_per_day, labs_per_subject, temp_week_sub, temp_week_labs, true);
+
+                if(slot != -1) {
+                    timetable<<subject[slot].name<<" LAB ("<<subject[slot].teacher_name<<")"<<delimiter;
+                } else {
+                    timetable<<"Break"<<delimiter;
+                }
+            } else {
+                timetable<<subject[slot].name<<" ("<<subject[slot].teacher_name<<")"<<delimiter;
+            }
 		}
-		
+
 		timetable << "\n";
 	}
 
 	timetable.close();
+
+	print();
 	
 	return 0;
 }
