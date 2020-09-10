@@ -21,7 +21,7 @@ int randomIndex(int no_of_subjects)
 
 int getSlotIndex(int no_of_subjects, int class_per_day, int labs_per_subject, int* temp_week_sub, int* temp_week_labs, bool is_lab)
 {
-    int index = randomIndex(no_of_subjects + class_per_day);
+    int index = randomIndex(no_of_subjects + 1);
 
     if (index >= no_of_subjects)
     {
